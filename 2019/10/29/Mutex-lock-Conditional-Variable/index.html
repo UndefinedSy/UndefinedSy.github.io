@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="Mutex lock &amp;amp; Conditional Variable�����Conditional Variable��ʼ���ġ� Why Conditional Variable ����Conditional Variable��������Ϊ�˽���ٽ���Դ�Ļ���������⣬��������˵�Ƕ��thread����ĳ�鹲����Դ�Ļ���������⡣����֪�">
+<meta name="description" content="Mutex lock &amp;amp; Conditional Variable我想从Conditional Variable开始本文。 Why Conditional Variable 首先Conditional Variable的引入是为了解决临界资源的互斥访问问题，更具体来说是多个thread对于某块共享资源的互斥访问问题。我们知道在操作系统中有一个生产者与消费者协作的场景，为了解决这个问题引入了">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Mutex lock &amp; Conditional Variable">
 <meta property="og:url" content="http://yoursite.com/2019/10/29/Mutex-lock-Conditional-Variable/index.html">
 <meta property="og:site_name" content="山中日月">
-<meta property="og:description" content="Mutex lock &amp;amp; Conditional Variable�����Conditional Variable��ʼ���ġ� Why Conditional Variable ����Conditional Variable��������Ϊ�˽���ٽ���Դ�Ļ���������⣬��������˵�Ƕ��thread����ĳ�鹲����Դ�Ļ���������⡣����֪�">
+<meta property="og:description" content="Mutex lock &amp;amp; Conditional Variable我想从Conditional Variable开始本文。 Why Conditional Variable 首先Conditional Variable的引入是为了解决临界资源的互斥访问问题，更具体来说是多个thread对于某块共享资源的互斥访问问题。我们知道在操作系统中有一个生产者与消费者协作的场景，为了解决这个问题引入了">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-29T14:13:11.285Z">
+<meta property="og:updated_time" content="2019-10-29T14:14:52.325Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Mutex lock &amp; Conditional Variable">
-<meta name="twitter:description" content="Mutex lock &amp;amp; Conditional Variable�����Conditional Variable��ʼ���ġ� Why Conditional Variable ����Conditional Variable��������Ϊ�˽���ٽ���Դ�Ļ���������⣬��������˵�Ƕ��thread����ĳ�鹲����Դ�Ļ���������⡣����֪�">
+<meta name="twitter:description" content="Mutex lock &amp;amp; Conditional Variable我想从Conditional Variable开始本文。 Why Conditional Variable 首先Conditional Variable的引入是为了解决临界资源的互斥访问问题，更具体来说是多个thread对于某块共享资源的互斥访问问题。我们知道在操作系统中有一个生产者与消费者协作的场景，为了解决这个问题引入了">
 
 
 
@@ -349,24 +349,24 @@
       
 
       
-        <h1 id="Mutex-lock-amp-Conditional-Variable"><a href="#Mutex-lock-amp-Conditional-Variable" class="headerlink" title="Mutex lock &amp; Conditional Variable"></a>Mutex lock &amp; Conditional Variable</h1><p>�����<strong>Conditional Variable</strong>��ʼ���ġ�</p>
+        <h1 id="Mutex-lock-amp-Conditional-Variable"><a href="#Mutex-lock-amp-Conditional-Variable" class="headerlink" title="Mutex lock &amp; Conditional Variable"></a>Mutex lock &amp; Conditional Variable</h1><p>我想从<strong>Conditional Variable</strong>开始本文。</p>
 <h2 id="Why-Conditional-Variable"><a href="#Why-Conditional-Variable" class="headerlink" title="Why Conditional Variable"></a>Why Conditional Variable</h2><blockquote>
-<p>����<strong>Conditional Variable</strong>��������Ϊ�˽���ٽ���Դ�Ļ���������⣬��������˵�Ƕ��thread����ĳ�鹲����Դ�Ļ���������⡣����֪���ڲ���ϵͳ����һ����������������Э���ĳ�����Ϊ�˽���������������һ��<strong>Semaphores</strong>���ƣ���C++�ж�Ӧ�ľ���<strong>Conditional Variable</strong>��</p>
+<p>首先<strong>Conditional Variable</strong>的引入是为了解决临界资源的互斥访问问题，更具体来说是多个thread对于某块共享资源的互斥访问问题。我们知道在操作系统中有一个生产者与消费者协作的场景，为了解决这个问题引入了一个<strong>Semaphores</strong>机制，而C++中对应的就是<strong>Conditional Variable</strong>。</p>
 </blockquote>
 <h2 id="How-Conditional-Variable-Works"><a href="#How-Conditional-Variable-Works" class="headerlink" title="How Conditional Variable Works"></a>How Conditional Variable Works</h2><ul>
-<li>���������޸��ٽ���߳�<blockquote>
+<li>对于有意修改临界的线程<blockquote>
 <ol>
-<li>��� std::mutex �����͵�ͨ�� std::lock_guard ��</li>
-<li>�ڱ�����ʱ�����޸�</li>
-<li>�� std::condition_variable ��ִ�� notify_one �� notify_all ��֪ͨʱ����Ҫ��������</li>
+<li>获得 std::mutex （典型地通过 std::lock_guard ）</li>
+<li>在保有锁时进行修改</li>
+<li>在 std::condition_variable 上执行 notify_one 或 notify_all （通知时不需要持有锁）</li>
 </ol>
 </blockquote>
 </li>
-<li>�����κ������� std::condition_variable �ϵȴ����߳�<blockquote>
+<li>对于任何有意在 std::condition_variable 上等待的线程<blockquote>
 <ol>
-<li>��� std::unique_lock\<a href="std::mutex\" target="_blank" rel="noopener">std::mutex\</a> ���������ڱ���������������ͬ�Ļ�����</li>
-<li>ִ�� wait �� wait_for �� wait_until ���ȴ������Զ��ͷŻ��⣬�������̵߳�ִ�С�</li>
-<li>condition_variable ��֪ͨʱ��ʱ����ʧ����ٻ��ѷ������̱߳����ѣ����Զ��ػ�û��⡣֮���߳�Ӧ�������������������ٵģ�������ȴ���</li>
+<li>获得 std::unique_lock\<a href="std::mutex\" target="_blank" rel="noopener">std::mutex\</a> ，在与用于保护共享变量者相同的互斥上</li>
+<li>执行 wait 、 wait_for 或 wait_until ，等待操作自动释放互斥，并悬挂线程的执行。</li>
+<li>condition_variable 被通知时，时限消失或虚假唤醒发生，线程被唤醒，且自动重获得互斥。之后线程应检查条件，若唤醒是虚假的，则继续等待。</li>
 </ol>
 </blockquote>
 </li>
@@ -374,33 +374,33 @@
 <h2 id="Mutex-Lock"><a href="#Mutex-Lock" class="headerlink" title="Mutex Lock"></a>Mutex Lock</h2><hr>
 <ul>
 <li><h3 id="std-lock-guard"><a href="#std-lock-guard" class="headerlink" title="std::lock_guard"></a>std::lock_guard</h3><blockquote>
-<p><code>std::lock_guard</code>������ͷ�ļ� \&lt;mutex></p>
+<p><code>std::lock_guard</code>定义于头文件 \&lt;mutex></p>
 </blockquote>
 <blockquote>
-<p>�� <code>lock_guard</code> �� mutex ��װ��,������������ڼ�ռ�� mutex ���ṩ���� <strong>RAII</strong> �����ơ�</p>
+<p>类 <code>lock_guard</code> 是 mutex 封装器,其在作用域块期间占有 mutex 并提供便利 <strong>RAII</strong> 风格机制。</p>
 </blockquote>
 <blockquote>
-<p><code>lock_guard</code> ���󴴽�ʱ������ͼ��ȡ���� mutex ������Ȩ���뿪���� lock_guard �����������ʱ�������� <code>lock_guard</code> ���ͷ� mutex��</p>
+<p><code>lock_guard</code> 对象创建时，它试图获取给定 mutex 的所有权。离开创建 lock_guard 对象的作用域时，将析构 <code>lock_guard</code> 并释放 mutex。</p>
 </blockquote>
 <blockquote>
-<p><code>lock_guard</code> �಻�ɸ��ơ� (<code>operator=[deleted]</code>)</p>
+<p><code>lock_guard</code> 类不可复制。 (<code>operator=[deleted]</code>)</p>
 </blockquote>
 <blockquote>
-<p>һ���򵥵���������:</p>
+<p>一个简单的例子如下:</p>
 </blockquote>
 <pre><code>#include &lt;thread&gt;
 #include &lt;mutex&gt;
 #include &lt;iostream&gt;
 
 int g_i = 0;
-std::mutex g_i_mutex;  // ���� g_i �Ļ�����
+std::mutex g_i_mutex;  // 保护 g_i 的互斥量
 
 void safe_increment()
 {
     std::lock_guard&lt;std::mutex&gt; lock(g_i_mutex);
     ++g_i;
     std::cout &lt;&lt; std::this_thread::get_id() &lt;&lt; &quot;: &quot; &lt;&lt; g_i &lt;&lt; &apos;\n&apos;;
-}   // g_i_mutex �����뿪������ʱ�Զ��ͷ�
+}   // g_i_mutex 在锁离开作用域时自动释放
 
 int main()
 { 
@@ -416,7 +416,7 @@ int main()
 </blockquote>
 </li>
 </ul>
-<p><code>std::conditional_variable</code>������ͷ�ļ�<code>&lt;condition_variable&gt;</code></p>
+<p><code>std::conditional_variable</code>定义于头文件<code>&lt;condition_variable&gt;</code></p>
 <p>I’d like to begin this blog with <strong>Conditional Variable</strong>.</p>
 
       
